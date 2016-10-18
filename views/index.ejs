@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+    <title>Socket.IO chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+<ul id="messages" class="messages"></ul>
+<form action="">
+    <input id="m" autocomplete="off"/>
+    <button>Send</button>
+</form>
+
+<script src="/javascripts/jquery.js"></script>
+<script src="/javascripts/socket.io.js"></script>
+<script>
+    var socket = io.connect('http://10.0.0.3:4201');
+    var nickname = localStorage.chat_nickname;
+
+    if (!nickname) {
+        socket.emit('getUserCount');
+
+        socket.on('sendUserCount', function (userCount) {
+            nickname = userCount ? '游客' + userCount : '游客' + parseInt(Math.random() * 100);
+            localStorage.chat_nickname = nickname;
+            init();
+        });
+    } else {
+        init();
+    }
+
+    function init () {
+        var historyMessageLoaded = false;
+
+        $('form').submit(function () {
+            var submitedTxt = $('#m').val();
+
+            var message = {
+                nickname: nickname,
+                content: submitedTxt,
+                createdDate: new Date()
+            };
+
+            $('#m').val('');
+
+            insertMessage(message);
+
+            socket.emit('chat message', message);
+
+            return false;
+        });
+
+        socket.on('message history', function (msgs) {
+            if (historyMessageLoaded == true) return;
+            msgs.forEach(insertMessage);
+            historyMessageLoaded = true;
+        });
+
+        socket.on('broadcast', insertMessage);
+
+        socket.on('error', function (err) {
+            console.log(err.stack);
+        });
+
+        function insertMessage (msg) {
+            var time = new Date(msg.createdDate);
+            time = time.getMonth() + '月' + fixZero(time.getDate()) + '日 ' + fixZero(time.getHours()) + ':' + fixZero(time.getMinutes()) + ':' + fixZero(time.getSeconds());
+            $('.messages').append($('<li>' + time + ' <mark>' + (msg.nickname == nickname ? '你' : msg.nickname) + '</mark>说: ' + msg.content + '</li>'));
+
+            function fixZero (num) {
+                return num < 10 ? '0' + num : num;
+            }
+        }
+    }
+</script>
+</body>
+</html>

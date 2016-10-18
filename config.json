@@ -1,0 +1,21 @@
+{
+    "production": {
+      "database": "sgnav_home_chat_test",
+      "backend_server": {
+        "port": 4200
+      },
+      "socket_server": {
+        "port": 4201
+      }
+    },
+
+    "test": {
+        "database": "sgnav_home_chat_test",
+        "backend_server": {
+          "port": 4200
+        },
+        "socket_server": {
+            "port": 4201
+        }
+    }
+}

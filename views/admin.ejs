@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<table class="table">
+    <tr>
+        <th>时间</th>
+        <th>昵称</th>
+        <th>内容</th>
+        <th>操作</th>
+    </tr>
+    <% messages.forEach(function (message) { %>
+        <tr>
+            <td><%= message.createdDate %></td>
+            <td><%= message.nickname %></td>
+            <td class="content"><%= message.content %></td>
+            <td>
+                <button class="ph-button ph-btn-blue delete" data-id="<%= message._id.toString() %>">删除当前消息</button>
+                <button class="ph-button ph-btn-red deleteUser" data-nickname="<%= message.nickname %>">删除此用户</button>
+            </td>
+        </tr>
+    <% }) %>
+</table>
+
+<script src="/javascripts/jquery.js"></script>
+<script>
+    $('.table .delete').click(function () {
+        var that = $(this);
+
+        $.ajax({
+            url: 'http://10.0.0.3:4200/message?id=' + that.attr('data-id'),
+            method: 'delete',
+            success: function () {
+                that.parents('tr').remove();
+            }
+        })
+    });
+
+    $('.table .deleteUser').click(function () {
+        var that = $(this);
+
+        $.ajax({
+            url: 'http://10.0.0.3:4200/message?nickname=' + that.attr('data-nickname'),
+            method: 'delete',
+            success: function () {
+                location.reload();
+            }
+        })
+    });
+</script>
+</body>
+</html>
