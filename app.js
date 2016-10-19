@@ -23,6 +23,7 @@ app.set('view engine', 'ejs');
 app.set('root', path.join(__dirname, 'public'));
 app.set('config', CONFIG);
 
+app.use(cors({ origin: '*' }));
 //  serve static Sources
 app.use(express.static(app.get('root')));
 
@@ -31,7 +32,6 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors({ origin: '*' }));
 
 app.run = function (config) {
   //  connect Mongodb
