@@ -41,7 +41,7 @@ app.run = function (config) {
   //  init Mongodb Schema register
   require('./models/models').init();
 
-  require('./chatRoom/chatroom')(config);
+  require('./chatRoom/chatRoom')(config);
 
   //  routes
   app.use(require('./routes/routes')(app));

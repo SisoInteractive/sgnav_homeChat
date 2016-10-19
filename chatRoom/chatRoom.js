@@ -10,15 +10,6 @@ module.exports = function (config) {
     io.on('connection', function(socket){
         console.log('a user connected');
 
-        //  Rate-limiting the data sent down
-        var timer = setInterval(function () {
-            socket.volatile.emit('data', 'payload');
-        }, 100);
-
-        socket.on('disconnect', function () {
-            clearInterval(timer);
-        });
-
         //  emit message history
         socket.on('get message history', function () {
             MessageModel.find({}, {_id: 0}).sort({createdDate: -1}).limit(50).exec(function (err, messages) {
