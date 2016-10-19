@@ -76,15 +76,14 @@
     }
 
     function init () {
-        var historyMessageLoaded = false;
-
         $('form').submit(function () {
             var submitedTxt = $('#m').val();
 
             var message = {
                 nickname: nickname,
                 content: submitedTxt,
-                createdDate: new Date()
+                createdDate: new Date(),
+                isVisitor: true
             };
 
             $('#m').val('');
@@ -96,10 +95,14 @@
             return false;
         });
 
+        socket.on('data', function (msg) {
+            console.log(msg);
+        });
+
+        socket.emit('get message history', null);
+
         socket.on('message history', function (msgs) {
-            if (historyMessageLoaded == true) return;
             msgs.forEach(insertMessage);
-            historyMessageLoaded = true;
         });
 
         socket.on('broadcast', insertMessage);

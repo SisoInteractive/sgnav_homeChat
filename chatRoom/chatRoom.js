@@ -10,10 +10,21 @@ module.exports = function (config) {
     io.on('connection', function(socket){
         console.log('a user connected');
 
+        //  Rate-limiting the data sent down
+        var timer = setInterval(function () {
+            socket.volatile.emit('data', 'payload');
+        }, 100);
+
+        socket.on('disconnect', function () {
+            clearInterval(timer);
+        });
+
         //  emit message history
-        MessageModel.find({}, {_id: 0, nickname: 1, content: 1, createdDate: 1}).sort({createdDate: -1}).limit(50).exec(function (err, messages) {
-            if (err) return error(err);
-            socket.emit('message history', messages);
+        socket.on('get message history', function () {
+            MessageModel.find({}, {_id: 0}).sort({createdDate: -1}).limit(50).exec(function (err, messages) {
+                if (err) return error(err);
+                socket.emit('message history', messages.reverse());
+            });
         });
 
         //  save Message from Sender, broadcast it to another Clients
@@ -28,7 +39,8 @@ module.exports = function (config) {
                 var message = new MessageModel({
                     nickname: msg.nickname,
                     content: msg.content,
-                    createdDate: new Date()
+                    createdDate: new Date(),
+                    isUser: msg.isUser
                 });
 
                 if (!chatbox) {

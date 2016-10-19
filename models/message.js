@@ -4,7 +4,8 @@ var Schema = mongoose.Schema;
 var schema = {
     nickname: String,
     content: String,
-    createdDate: Date
+    createdDate: Date,
+    isUser: Boolean
 };
 
 var message = new Schema(schema);
